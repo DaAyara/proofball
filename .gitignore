@@ -1,0 +1,12 @@
+.anchor/
+.DS_Store
+target/
+node_modules/
+test-ledger/
+dist/
+docs/txline-idl/
+*.log
+
+# keep wallet keys out of the repo
+**/id.json
+.env

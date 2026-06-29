@@ -1,0 +1,19 @@
+{
+  "name": "proofball-verify",
+  "version": "0.1.0",
+  "description": "Stand alone tool that checks a settled Proofball market without trusting the Proofball frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "tsx verify.ts"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
+    "@solana/web3.js": "^1.95.0",
+    "axios": "^1.7.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.0"
+  }
+}
