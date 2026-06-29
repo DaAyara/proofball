@@ -37,23 +37,16 @@ Program IDs we point at:
 - Devnet: `6pW64gN1s2uqjHkn1unFeEjAwJkPGHoppGvS715wyP2J`
 - Mainnet: `9ExbZjAapQww1vfcisDmrngPinHTEfpjYRWMunJgcKaA`
 
-## Status on the TxLINE integration
+## What is still a draft and needs checking against the real IDL
 
-Update: the real IDL has been pulled and checked. `programs/proofball/src/txline.rs` now uses the actual discriminator, field names, and types from TxLINE's published program, not guesses from doc examples. Specifically:
+Being honest here because this matters for code quality. The exact byte layout of the CPI call to `validateStat` in `programs/proofball/src/txline.rs` is built from the example code in TxLINE's docs, not from a downloaded IDL, because I could not pull the full Anchor IDL file directly while writing this. Before you trust this for the real demo:
 
-- `validate_stat` takes exactly one account, `daily_scores_merkle_roots`, no signer needed for it
-- The real discriminator is hardcoded from the IDL, not computed from a hash guess
-- Real type names: `TraderPredicate`, `StatTerm`, `ScoresBatchSummary`, `BinaryExpression`, matching their IDL exactly, not the slightly different names used in their doc examples
-- `Comparison` only has 3 variants (`greater_than`, `less_than`, `equal_to`), and stat values and thresholds are `i32`, not `i64`
+1. Run `scripts/download_idl.sh` first thing in Codespaces, it pulls TxLINE's real devnet IDL
+2. Open `docs/txline-idl/devnet.md` and check the real `validateStat` account list and argument order against `programs/proofball/src/txline.rs`
+3. If anything differs, fix `txline.rs`. The rest of the program does not need to change, settlement logic only touches that one file
+4. Same goes for how `validateStat` returns its result. The current code assumes it uses Solana's return data mechanism, this needs confirming with a real test call
 
-One thing genuinely confirmed by reading TxLINE's own IDL: their program already ships a full one-to-one trade system (`create_trade`, `settle_trade`), but it needs both traders to sign before a trade exists, with fixed stakes agreed up front between two named wallets. There is no pooled market where many people can each put in different amounts on yes or no without already having found a matched counterparty. That is the real gap Proofball fills, confirmed against their actual account list, not assumed.
-
-What still needs a live test before the demo, since it cannot be confirmed by reading the IDL alone:
-
-1. Whether `validate_stat`'s result comes back through Solana's return data mechanism when called as a real CPI (not just through `.view()` simulation, which is the only way TxLINE's own docs show calling it)
-2. The exact leaf hashing format used inside `ScoreStat`, needed for the independent verify script in `verify/` to recompute the Merkle root by hand
-
-Both are marked clearly in code comments at the exact spot that needs the live check.
+I left clear comments at each spot in the code where this matters.
 
 ## Project layout
 

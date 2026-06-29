@@ -97,9 +97,9 @@ describe("proofball", () => {
         new anchor.BN(17952170), // fixture id, matches TxLINE's example fixture
         7, // stat key a: Participant 1 Total Corners
         8, // stat key b: Participant 2 Total Corners
-        1, // op: add
+        0, // op: add (0 = add, 1 = subtract, matches BinaryExpression order in the real IDL)
         0, // comparison: greater than
-        new anchor.BN(9),
+        9, // threshold, i32, a plain number works here, no BN needed
         new anchor.BN(closeTime)
       )
       .accounts({

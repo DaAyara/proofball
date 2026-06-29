@@ -93,7 +93,7 @@ async function main() {
   console.log(`   fixture id:        ${market.fixtureId}`);
   console.log(`   stat key a:        ${market.statKeyA}`);
   console.log(`   stat key b:        ${market.statKeyB === 0 ? "(none, single stat market)" : market.statKeyB}`);
-  console.log(`   comparison:        ${["greater than", "less than", "equal", "greater than or equal"][market.comparison]}`);
+  console.log(`   comparison:        ${["greater than", "less than", "equal to"][market.comparison]}`);
   console.log(`   threshold:         ${market.threshold}`);
   console.log(`   recorded status:   ${["unsettled", "yes", "no"][market.settledResult]}`);
 
@@ -149,12 +149,11 @@ async function main() {
     (a: number, b: number) => a > b,
     (a: number, b: number) => a < b,
     (a: number, b: number) => a === b,
-    (a: number, b: number) => a >= b,
   ];
   const recomputedResult = comparisons[market.comparison](statValue, market.threshold);
 
   console.log(`   verified stat value: ${statValue}`);
-  console.log(`   threshold check: ${statValue} ${["       >", "       <", "      ==", "      >="][market.comparison]} ${market.threshold} = ${recomputedResult}`);
+  console.log(`   threshold check: ${statValue} ${["       >", "       <", "      =="][market.comparison]} ${market.threshold} = ${recomputedResult}`);
 
   console.log("\n5. Comparing against what the Proofball program recorded on chain");
   const recordedYes = market.settledResult === 1;
@@ -183,7 +182,7 @@ function decodeMarket(data: Buffer) {
   const statKeyB = data.readUInt32LE(offset); offset += 4;
   const op = data.readUInt8(offset); offset += 1;
   const comparison = data.readUInt8(offset); offset += 1;
-  const threshold = data.readBigInt64LE(offset); offset += 8;
+  const threshold = data.readInt32LE(offset); offset += 4;
   offset += 8; // close_unix_time, not needed here
   offset += 1; // status
   offset += 8; // yes_pool
@@ -197,7 +196,7 @@ function decodeMarket(data: Buffer) {
     statKeyB,
     op,
     comparison,
-    threshold: Number(threshold),
+    threshold,
     settledResult,
   };
 }

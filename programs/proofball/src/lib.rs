@@ -24,7 +24,7 @@ declare_id!("PFbaLLxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 // See programs/proofball/src/txline.rs for the full definitions and
 // a note on where each type came from.
 pub mod txline;
-use txline::{Comparison, Op, Predicate, StatProof};
+use txline::{BinaryExpression, Comparison, TraderPredicate, StatTerm};
 
 #[program]
 pub mod proofball {
@@ -40,9 +40,12 @@ pub mod proofball {
     /// (Participant 1 Total Corners), no second stat, comparison
     /// greater than, threshold 5.
     ///
-    /// Example: "Combined corners > 9" needs two stats added together,
-    /// which TxLINE's validator does not do directly, see the note
-    /// in txline.rs about the add_combined helper market type.
+    /// Example: "Combined corners > 9" (team A corners plus team B
+    /// corners) uses stat_key_a = 7, stat_key_b = 8, op = add (0),
+    /// comparison greater than, threshold 9. TxLINE's own validate_stat
+    /// instruction does this addition for us, on chain, as part of the
+    /// same proof check, so we never see or trust the raw numbers
+    /// ourselves.
     pub fn create_market(
         ctx: Context<CreateMarket>,
         market_id: u64,
@@ -51,12 +54,15 @@ pub mod proofball {
         stat_key_b: u32,
         op: u8,
         comparison: u8,
-        threshold: i64,
+        threshold: i32,
         close_unix_time: i64,
     ) -> Result<()> {
         require!(close_unix_time > Clock::get()?.unix_timestamp, ProofballError::CloseTimeInPast);
-        require!(comparison <= 3, ProofballError::BadComparison);
-        require!(op <= 2, ProofballError::BadOp);
+        // Only 3 comparison variants exist on TxLINE's side: greater_than,
+        // less_than, equal_to (indices 0, 1, 2). There is no fourth
+        // variant, an earlier draft of this program wrongly allowed one.
+        require!(comparison <= 2, ProofballError::BadComparison);
+        require!(op <= 1, ProofballError::BadOp);
 
         let market = &mut ctx.accounts.market;
         market.creator = ctx.accounts.creator.key();
@@ -155,7 +161,7 @@ pub mod proofball {
     /// condition for us through a cross program call.
     ///
     /// All the proof data (fixture_summary, fixture_proof, main_tree_proof,
-    /// stat1, stat2) comes straight from TxLINE's
+    /// stat_a, stat_b) comes straight from TxLINE's
     /// GET /api/scores/stat-validation endpoint. We do not build or
     /// touch the Merkle proof ourselves, we just pass it through.
     ///
@@ -163,12 +169,12 @@ pub mod proofball {
     /// Call claim_payout separately for each winning position.
     pub fn settle_market<'info>(
         ctx: Context<'_, '_, '_, 'info, SettleMarket<'info>>,
-        target_unix_time: i64,
-        fixture_summary: txline::FixtureSummary,
+        ts: i64,
+        fixture_summary: txline::ScoresBatchSummary,
         fixture_proof: Vec<txline::ProofNode>,
         main_tree_proof: Vec<txline::ProofNode>,
-        stat1: StatProof,
-        stat2: Option<StatProof>,
+        stat_a: StatTerm,
+        stat_b: Option<StatTerm>,
     ) -> Result<()> {
         let market = &mut ctx.accounts.market;
         require!(market.status == MarketStatus::Open as u8, ProofballError::MarketNotOpen);
@@ -177,7 +183,7 @@ pub mod proofball {
             ProofballError::MarketStillOpen
         );
 
-        let predicate = Predicate {
+        let predicate = TraderPredicate {
             threshold: market.threshold,
             comparison: comparison_from_u8(market.comparison),
         };
@@ -187,20 +193,20 @@ pub mod proofball {
             Some(op_from_u8(market.op))
         };
 
-        // This is the actual call into TxLINE's deployed program.
-        // It is a read only simulation (their docs call it with .view()
-        // off chain) but here we need the real instruction result on
-        // chain, so we CPI into it directly and read back the bool.
+        // This is the actual call into TxLINE's deployed program,
+        // through a real cross program invocation, not a client side
+        // simulation. See txline.rs for the full account and argument
+        // layout, copied straight from their published IDL.
         let result = txline::cpi_validate_stat(
             &ctx.accounts.txline_program,
             &ctx.accounts.daily_scores_merkle_roots,
-            target_unix_time,
+            ts,
             fixture_summary,
             fixture_proof,
             main_tree_proof,
             predicate,
-            stat1,
-            stat2,
+            stat_a,
+            stat_b,
             op,
         )?;
 
@@ -277,19 +283,23 @@ pub mod proofball {
 }
 
 fn comparison_from_u8(v: u8) -> Comparison {
+    // Only 3 real variants exist: greater_than (0), less_than (1),
+    // equal_to (2). create_market already rejects anything above 2,
+    // so the fallback arm here is unreachable in practice, it exists
+    // only so the match is exhaustive.
     match v {
         0 => Comparison::GreaterThan,
         1 => Comparison::LessThan,
-        2 => Comparison::Equal,
-        _ => Comparison::GreaterThanOrEqual,
+        _ => Comparison::EqualTo,
     }
 }
 
-fn op_from_u8(v: u8) -> Op {
+fn op_from_u8(v: u8) -> BinaryExpression {
+    // create_market already rejects anything above 1, so this only
+    // ever sees 0 or 1 in practice.
     match v {
-        0 => Op::Subtract,
-        1 => Op::Add,
-        _ => Op::Subtract,
+        0 => BinaryExpression::Add,
+        _ => BinaryExpression::Subtract,
     }
 }
 
@@ -412,7 +422,7 @@ pub struct Market {
     pub stat_key_b: u32,
     pub op: u8,
     pub comparison: u8,
-    pub threshold: i64,
+    pub threshold: i32,
     pub close_unix_time: i64,
     pub status: u8,
     pub yes_pool: u64,
@@ -466,7 +476,7 @@ pub struct MarketCreated {
     pub stat_key_b: u32,
     pub op: u8,
     pub comparison: u8,
-    pub threshold: i64,
+    pub threshold: i32,
     pub close_unix_time: i64,
 }
 
