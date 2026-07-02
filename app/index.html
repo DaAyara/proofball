@@ -451,14 +451,26 @@ const SAMPLE_MARKETS = [
 // ─── wallet ───────────────────────────────────────────────────────────────────
 
 async function connectWallet() {
-  const provider = window.solana || window.phantom?.solana;
-  if (!provider) {
-    toast("Install Phantom wallet to place bets", "err");
+  // Wallet Standard: works with Phantom, Solflare, Backpack, Jupiter, etc.
+  const providers = [
+    window.solana,
+    window.solflare,
+    window.backpack,
+    window.phantom?.solana,
+    ...(window.wallets || []),
+  ].filter(Boolean);
+
+  if (providers.length === 0) {
+    toast("No Solana wallet found. Install Phantom or Solflare.", "err");
+    window.open("https://phantom.app", "_blank");
     return;
   }
+
+  // Use the first available provider
+  const provider = providers[0];
   try {
     const resp = await provider.connect();
-    wallet = resp.publicKey.toString();
+    wallet = (resp.publicKey || provider.publicKey).toString();
     const btn = document.getElementById("walletBtn");
     btn.textContent = wallet.slice(0, 4) + "..." + wallet.slice(-4);
     btn.classList.add("connected");
