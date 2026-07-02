@@ -4,6 +4,8 @@
 # image only gives us Rust and Node.
 set -e
 
+rustup default 1.85.0
+
 echo "Installing Solana CLI..."
 sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
 echo 'export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"' >> ~/.bashrc

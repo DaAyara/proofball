@@ -17,7 +17,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 
-declare_id!("PFbaLLxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+declare_id!("7JNc8D9Pt87apERHFsXoTnibWEvxF9n5wCJJinJopaPv");
 
 // Import TxLINE's own types so our CPI call has to match their real
 // instruction shape. These mirror what is published in their IDL.
@@ -198,8 +198,8 @@ pub mod proofball {
         // simulation. See txline.rs for the full account and argument
         // layout, copied straight from their published IDL.
         let result = txline::cpi_validate_stat(
-            &ctx.accounts.txline_program,
-            &ctx.accounts.daily_scores_merkle_roots,
+            &ctx.accounts.txline_program.to_account_info(),
+            &ctx.accounts.daily_scores_merkle_roots.to_account_info(),
             ts,
             fixture_summary,
             fixture_proof,
@@ -330,7 +330,7 @@ pub struct CreateMarket<'info> {
     )]
     pub vault: Account<'info, TokenAccount>,
 
-    pub stake_mint: anchor_spl::token::Mint,
+    pub stake_mint: UncheckedAccount<'info>,
 
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
@@ -404,7 +404,7 @@ pub struct ClaimPayout<'info> {
         mut,
         seeds = [b"position", market.key().as_ref(), user.key().as_ref()],
         bump = position.bump,
-        has_one = owner @ ProofballError::NotPositionOwner,
+        constraint = position.owner == user.key() @ ProofballError::NotPositionOwner,
     )]
     pub position: Account<'info, Position>,
 

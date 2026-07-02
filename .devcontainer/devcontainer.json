@@ -1,11 +1,16 @@
 {
   "name": "proofball",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "20"
     },
-    "ghcr.io/devcontainers/features/rust:1": {}
+    "ghcr.io/devcontainers/features/rust:1": {
+      "version": "1.85.0"
+    }
+  },
+  "containerEnv": {
+    "RUSTUP_TOOLCHAIN": "1.85.0"
   },
   "postCreateCommand": "bash .devcontainer/setup.sh",
   "customizations": {

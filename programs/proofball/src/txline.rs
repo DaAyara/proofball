@@ -34,7 +34,8 @@
 // is not a duplicate of what TxLINE already ships, it is the pooled
 // version of something they only offer as a one to one handshake.
 
-use anchor_lang::prelude::*;
+use anchor_lang::prelude::{AccountInfo, Result, UncheckedAccount};
+use anchor_lang::{AnchorDeserialize, AnchorSerialize};
 use anchor_lang::solana_program::instruction::{AccountMeta, Instruction};
 use anchor_lang::solana_program::program::invoke;
 
@@ -118,8 +119,8 @@ pub enum BinaryExpression {
 /// Argument order matches the real IDL exactly: ts, fixture_summary,
 /// fixture_proof, main_tree_proof, predicate, stat_a, stat_b, op.
 pub fn cpi_validate_stat<'info>(
-    txline_program: &UncheckedAccount<'info>,
-    daily_scores_merkle_roots: &UncheckedAccount<'info>,
+    txline_program: &AccountInfo<'info>,
+    daily_scores_merkle_roots: &AccountInfo<'info>,
     ts: i64,
     fixture_summary: ScoresBatchSummary,
     fixture_proof: Vec<ProofNode>,
@@ -145,16 +146,16 @@ pub fn cpi_validate_stat<'info>(
     // writable. Nothing else goes in the account list, no program
     // account entry, no system program, nothing.
     let instruction = Instruction {
-        program_id: txline_program.key(),
-        accounts: vec![AccountMeta::new_readonly(daily_scores_merkle_roots.key(), false)],
+        program_id: txline_program.key.clone(),
+        accounts: vec![AccountMeta::new_readonly(daily_scores_merkle_roots.key.clone(), false)],
         data,
     };
 
     invoke(
         &instruction,
         &[
-            daily_scores_merkle_roots.to_account_info(),
-            txline_program.to_account_info(),
+            daily_scores_merkle_roots.clone(),
+            txline_program.clone(),
         ],
     )?;
 
@@ -171,6 +172,8 @@ pub fn cpi_validate_stat<'info>(
     // line below as the first thing to test, not as settled.
     match anchor_lang::solana_program::program::get_return_data() {
         Some((_program_id, bytes)) if !bytes.is_empty() => Ok(bytes[0] != 0),
-        _ => Err(error!(crate::ProofballError::Overflow)),
+        _ => Err(anchor_lang::error::Error::from(
+            anchor_lang::error::ErrorCode::AccountDidNotDeserialize,
+        )),
     }
 }

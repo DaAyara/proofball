@@ -32,7 +32,7 @@ import { createHash } from "crypto";
 const DEVNET_RPC = process.env.PROOFBALL_RPC || "https://api.devnet.solana.com";
 const TXLINE_API = process.env.TXLINE_API || "https://txline-dev.txodds.com/api";
 const PROOFBALL_PROGRAM_ID = new PublicKey(
-  process.env.PROOFBALL_PROGRAM_ID || "PFbaLLxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  process.env.PROOFBALL_PROGRAM_ID || "Bs4X9V86Tf1yMhvVap8mzbs5EFbwgFCyyFWTSXuDKQsy"
 );
 const TXLINE_PROGRAM_ID = new PublicKey(
   process.env.TXLINE_PROGRAM_ID || "6pW64gN1s2uqjHkn1unFeEjAwJkPGHoppGvS715wyP2J"
