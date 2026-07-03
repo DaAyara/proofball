@@ -415,7 +415,7 @@ let markets = [];
 
 const SAMPLE_MARKETS = [
   {
-    address: "DEMO_MARKET_1",
+    address: "8c1SfhWvdveWT3pxeNCWwD3co1DuTSrWVye6hFeE8W2G",
     fixtureId: "17952170",
     matchName: "Argentina vs France",
     statKeyA: 3,
@@ -428,10 +428,10 @@ const SAMPLE_MARKETS = [
     yesPool: 3200000, // in USDC micro-units (6 decimals), so 3.2 USDC
     noPool:  1800000,
     settledResult: 0,
-    isDemo: true,
+    isDemo: false,
   },
   {
-    address: "DEMO_MARKET_2",
+    address: "2JbDNivxFiLn4Agu5R69xkgDXkPPx7Lf1mGXzLSLKyjk",
     fixtureId: "17952171",
     matchName: "Brazil vs England",
     statKeyA: 5,
@@ -440,11 +440,11 @@ const SAMPLE_MARKETS = [
     comparison: 0,    // greater than
     threshold: 4,
     closeUnixTime: Math.floor(Date.now() / 1000) - 60 * 60 * 2,
-    status: 1,        // settled
+    status: 0,        // open
     yesPool: 5100000,
     noPool:  4900000,
     settledResult: 1, // yes won
-    isDemo: true,
+    isDemo: false,
   },
 ];
 
