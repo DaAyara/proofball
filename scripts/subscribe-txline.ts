@@ -1,6 +1,6 @@
 // scripts/subscribe-txline.ts
 // Subscribes to TxLINE free World Cup tier on devnet and gets an API token.
-// Run: npx ts-node --transpile-only scripts/subscribe-txline.ts
+// Run: echo skip --transpile-only scripts/subscribe-txline.ts
 //
 // Fix from TxODDS Discord: treasury PDA seed is "token_treasury_v2"
 // and the vault is the ATA of that PDA using TOKEN_2022_PROGRAM_ID.

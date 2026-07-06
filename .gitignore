@@ -10,3 +10,4 @@ docs/txline-idl/
 # keep wallet keys out of the repo
 **/id.json
 .env
+.env
