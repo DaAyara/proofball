@@ -1,0 +1,18 @@
+{
+  "finished": [
+    {
+      "fixtureId": 18193785,
+      "match": "USA vs Belgium",
+      "startTime": 1783382400000,
+      "status": "finished",
+      "useFor": "settlement testing"
+    }
+  ],
+  "upcoming": [
+    {"fixtureId": 18202701, "match": "Argentina vs Egypt"},
+    {"fixtureId": 18202783, "match": "Switzerland vs Colombia"},
+    {"fixtureId": 18209181, "match": "France vs Morocco"},
+    {"fixtureId": 18213979, "match": "Norway vs England"},
+    {"fixtureId": 18218149, "match": "Spain vs Belgium"}
+  ]
+}
