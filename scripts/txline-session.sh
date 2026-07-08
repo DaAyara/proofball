@@ -38,28 +38,36 @@ async function main() {
 
   console.log("API Token:", apiToken);
 
-  for (const path of ["/fixtures/snapshot", "/scores/snapshot", "/worldcup/fixtures"]) {
+  for (const path of [
+    "/fixtures/snapshot",
+    "/scores/snapshot/18193785",
+    "/scores/snapshot/18187298"
+  ]) {
     try {
       const r = await axios.get(`${API_BASE}${path}`, { headers });
       const fname = `/workspaces/proofball/scripts/data${path.replace(/\//g,"_")}.json`;
       fs.writeFileSync(fname, JSON.stringify(r.data, null, 2));
-      console.log(`${path}: 200 - saved to ${fname}`);
+      console.log(`${path}: 200 - saved`);
     } catch(e: any) {
-      console.log(`${path}: ${e.response?.status} - ${JSON.stringify(e.response?.data).slice(0,80)}`);
+      console.log(`${path}: ${e.response?.status}`);
     }
   }
 
-  // Try stat validation for USA vs Belgium (finished match)
-  try {
-    const r = await axios.get(`${API_BASE}/scores/stat-validation`, {
-      params: { fixtureId: 18193785, statKey: 3 },
-      headers
-    });
-    fs.writeFileSync("/workspaces/proofball/scripts/stat_validation.json", JSON.stringify(r.data, null, 2));
-    console.log("stat-validation: 200 - saved!");
-  } catch(e: any) {
-    console.log(`stat-validation: ${e.response?.status}`);
-  }
+  // Stat validation needs fixtureId + seq number from the stream
+  // seq comes from score updates, try with known working example
+  for (const url of [
+    `/scores/stat-validation?fixtureId=18193785&seq=880&statKeys=1,2`,
+    `/scores/stat-validation?fixtureId=18187298&seq=880&statKeys=1,2`,
+  ]) {
+    try {
+      const r = await axios.get(`${API_BASE}${url}`, { headers });
+      fs.writeFileSync(`/workspaces/proofball/scripts/stat_validation.json`, JSON.stringify(r.data, null, 2));
+      console.log(`stat-validation: 200 - saved!`);
+      break;
+    } catch(e: any) {
+      console.log(`${url}: ${e.response?.status}`);
+    }
+  }      
 }
 main().catch(e => console.error(e.message));
 EOF

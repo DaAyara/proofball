@@ -39,48 +39,6 @@
     "Participant1IsHome": true
   },
   {
-    "Ts": 1783324800000,
-    "StartTime": 1783382400000,
-    "Competition": "World Cup",
-    "CompetitionId": 72,
-    "FixtureGroupId": 10115574,
-    "Participant1Id": 3220,
-    "Participant1": "USA",
-    "Participant2Id": 1575,
-    "Participant2": "Belgium",
-    "FixtureId": 18193785,
-    "Participant1IsHome": true,
-    "GameState": 1
-  },
-  {
-    "Ts": 1783324800000,
-    "StartTime": 1783440000000,
-    "Competition": "World Cup",
-    "CompetitionId": 72,
-    "FixtureGroupId": 10115574,
-    "Participant1Id": 1489,
-    "Participant1": "Argentina",
-    "Participant2Id": 1867,
-    "Participant2": "Egypt",
-    "FixtureId": 18202701,
-    "Participant1IsHome": true,
-    "GameState": 1
-  },
-  {
-    "Ts": 1783134000000,
-    "StartTime": 1783454400000,
-    "Competition": "World Cup",
-    "CompetitionId": 72,
-    "FixtureGroupId": 10115574,
-    "Participant1Id": 3099,
-    "Participant1": "Switzerland",
-    "Participant2Id": 1748,
-    "Participant2": "Colombia",
-    "FixtureId": 18202783,
-    "Participant1IsHome": true,
-    "GameState": 1
-  },
-  {
     "Ts": 1783206000000,
     "StartTime": 1783627200000,
     "Competition": "World Cup",
@@ -119,6 +77,20 @@
     "Participant2Id": 1575,
     "Participant2": "Belgium",
     "FixtureId": 18218149,
+    "Participant1IsHome": true,
+    "GameState": 1
+  },
+  {
+    "Ts": 1783461600000,
+    "StartTime": 1783818000000,
+    "Competition": "World Cup",
+    "CompetitionId": 72,
+    "FixtureGroupId": 10115675,
+    "Participant1Id": 1489,
+    "Participant1": "Argentina",
+    "Participant2Id": 3099,
+    "Participant2": "Switzerland",
+    "FixtureId": 18222446,
     "Participant1IsHome": true,
     "GameState": 1
   }
