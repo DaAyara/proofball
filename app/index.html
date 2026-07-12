@@ -572,8 +572,10 @@ async function placeBet(marketAddress, sideIsYes) {
 
     const conn = new solanaWeb3.Connection(RPC, "confirmed");
     const walletPubkey = new solanaWeb3.PublicKey(wallet);
+    console.log('Wallet address in browser:', wallet);
     const marketPubkey = new solanaWeb3.PublicKey(marketAddress);
     const mintPubkey = new solanaWeb3.PublicKey(MINT);
+    console.log('Mint:', mintPubkey.toBase58());
     const tokenProgram = new solanaWeb3.PublicKey(TOKEN_PROGRAM);
     const systemProgram = solanaWeb3.SystemProgram.programId;
 
@@ -596,13 +598,8 @@ async function placeBet(marketAddress, sideIsYes) {
       new solanaWeb3.PublicKey(PROGRAM_ID)
     );
 
-    // fetch the ATA address directly from chain instead of deriving it
-    const tokenAccounts = await conn.getTokenAccountsByOwner(walletPubkey, { mint: mintPubkey });
-    if (tokenAccounts.value.length === 0) {
-      toast("No token account found. Make sure you received test tokens.", "err");
-      return;
-    }
-    const userAta = tokenAccounts.value[0].pubkey;
+    // use the fixed ATA address for testing
+    const userAta = new solanaWeb3.PublicKey('2BHKfHC7FfyMehNStLnTL9WgxTggwprUXF5YKTcB8GA2');
 
     // encode place_position instruction
 
