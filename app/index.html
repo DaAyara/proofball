@@ -376,7 +376,9 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/web3.js/1.95.3/web3.min.js"></script>
+<script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
+<script src="https://bundle.run/buffer@6.0.3"></script>
+<script>const Buffer = buffer.Buffer;</script>
 <script>
 
 // ─── config ───────────────────────────────────────────────────────────────────
@@ -384,6 +386,9 @@
 const PROGRAM_ID   = "7JNc8D9Pt87apERHFsXoTnibWEvxF9n5wCJJinJopaPv";
 const RPC          = "https://api.devnet.solana.com";
 const EXPLORER     = "https://explorer.solana.com";
+const MINT = "9hnoacXHcJCsVErVJ4eHwcsHAeGkwZyjjBp8jvqbXu88";
+const TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
+const ASSOCIATED_TOKEN_PROGRAM = "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJe1bN8";
 
 // Human-readable labels for TxLINE's soccer stat keys.
 // key = period * 1000 + base_key, from their /documentation/scores/soccer-feed
@@ -415,69 +420,99 @@ let markets = [];
 
 const SAMPLE_MARKETS = [
   {
-    address: "8c1SfhWvdveWT3pxeNCWwD3co1DuTSrWVye6hFeE8W2G",
-    fixtureId: "17952170",
-    matchName: "Argentina vs France",
+    address: "BpVuZMm3pz9pmbAcTWEzApiZdWgKQzXdpv7hkR1uqL6k",
+    fixtureId: "18222446",
+    matchName: "Argentina vs Switzerland",
     statKeyA: 3,
     statKeyB: 4,
-    op: 0,            // add
-    comparison: 0,    // greater than
+    op: 0,
+    comparison: 0,
     threshold: 9,
-    closeUnixTime: Math.floor(Date.now() / 1000) + 60 * 60 * 6,
-    status: 0,        // open
-    yesPool: 3200000, // in USDC micro-units (6 decimals), so 3.2 USDC
-    noPool:  1800000,
+    closeUnixTime: 1783818000 + 60 * 60 * 72,
+    status: 0,
+    yesPool: 0,
+    noPool: 0,
     settledResult: 0,
     isDemo: false,
+    marketIndex: 3,
   },
   {
-    address: "2JbDNivxFiLn4Agu5R69xkgDXkPPx7Lf1mGXzLSLKyjk",
-    fixtureId: "17952171",
-    matchName: "Brazil vs England",
+    address: "6s1ufwxVcQ1dA3hP25uBZVbwHYbAnKMekgGR6vXFCUy5",
+    fixtureId: "18237038",
+    matchName: "France vs Spain",
     statKeyA: 5,
     statKeyB: 6,
-    op: 0,            // add
-    comparison: 0,    // greater than
+    op: 0,
+    comparison: 0,
     threshold: 4,
-    closeUnixTime: Math.floor(Date.now() / 1000) - 60 * 60 * 2,
-    status: 0,        // open
-    yesPool: 5100000,
-    noPool:  4900000,
-    settledResult: 1, // yes won
+    closeUnixTime: 1784055600 + 60 * 60 * 120,
+    status: 0,
+    yesPool: 0,
+    noPool: 0,
+    settledResult: 0,
     isDemo: false,
+    marketIndex: 4,
+  },
+  {
+    address: "GjyVpoBamxXsimAo6v5dJg7QdBc5HxQaD6gu2JVKnLyL",
+    fixtureId: "18241006",
+    matchName: "England vs Argentina",
+    statKeyA: 1,
+    statKeyB: 2,
+    op: 0,
+    comparison: 0,
+    threshold: 2,
+    closeUnixTime: 1784142000 + 60 * 60 * 144,
+    status: 0,
+    yesPool: 0,
+    noPool: 0,
+    settledResult: 0,
+    isDemo: false,
+    marketIndex: 5,
   },
 ];
 
 // ─── wallet ───────────────────────────────────────────────────────────────────
 
 async function connectWallet() {
-  // Wallet Standard: works with Phantom, Solflare, Backpack, Jupiter, etc.
-  const providers = [
-    window.solana,
-    window.solflare,
-    window.backpack,
-    window.phantom?.solana,
-    ...(window.wallets || []),
-  ].filter(Boolean);
-
-  if (providers.length === 0) {
+  const provider = getProvider();
+  if (!provider) {
     toast("No Solana wallet found. Install Phantom or Solflare.", "err");
     window.open("https://phantom.app", "_blank");
     return;
   }
-
-  // Use the first available provider
-  const provider = providers[0];
   try {
     const resp = await provider.connect();
     wallet = (resp.publicKey || provider.publicKey).toString();
     const btn = document.getElementById("walletBtn");
     btn.textContent = wallet.slice(0, 4) + "..." + wallet.slice(-4);
     btn.classList.add("connected");
+    btn.onclick = disconnectWallet;
     toast("Wallet connected", "ok");
   } catch (e) {
     toast("Could not connect wallet", "err");
   }
+}
+
+function getProvider() {
+  if ('phantom' in window) {
+    const provider = window.phantom?.solana;
+    if (provider?.isPhantom) return provider;
+  }
+  if ('solflare' in window && window.solflare.isSolflare) return window.solflare;
+  if (window.solana) return window.solana;
+  return null;
+}
+
+function disconnectWallet() {
+  const provider = getProvider();
+  if (provider?.disconnect) provider.disconnect();
+  wallet = null;
+  const btn = document.getElementById("walletBtn");
+  btn.textContent = "Connect wallet";
+  btn.classList.remove("connected");
+  btn.onclick = connectWallet;
+  toast("Wallet disconnected", "");
 }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -518,22 +553,95 @@ function toast(msg, type = "") {
   el._t = setTimeout(() => el.classList.remove("show"), 3500);
 }
 
-// ─── place bet (demo only, real version needs Anchor client) ──────────────────
+// ─── place bet ───────────────────────────────────────────────────────────────
 
-function placeBet(marketAddress, sideIsYes) {
-  if (!wallet) {
-    toast("Connect your wallet first", "err");
-    return;
-  }
+async function placeBet(marketAddress, sideIsYes) {
+  if (!wallet) { toast("Connect your wallet first", "err"); return; }
+
+  const provider = getProvider();
+  if (!provider) { toast("No wallet found", "err"); return; }
+
   const input = document.getElementById("amount_" + marketAddress);
   const amount = parseFloat(input?.value);
-  if (!amount || amount <= 0) {
-    toast("Enter an amount", "err");
-    return;
+  if (!amount || amount <= 0) { toast("Enter an amount", "err"); return; }
+
+  const amountLamports = Math.round(amount * 1_000_000);
+
+  try {
+    toast("Building transaction...", "");
+
+    const conn = new solanaWeb3.Connection(RPC, "confirmed");
+    const walletPubkey = new solanaWeb3.PublicKey(wallet);
+    const marketPubkey = new solanaWeb3.PublicKey(marketAddress);
+    const mintPubkey = new solanaWeb3.PublicKey(MINT);
+    const tokenProgram = new solanaWeb3.PublicKey(TOKEN_PROGRAM);
+    const systemProgram = solanaWeb3.SystemProgram.programId;
+
+    // derive market id from address - find which market this is
+    const market = SAMPLE_MARKETS.find(m => m.address === marketAddress);
+    const marketIndex = market.marketIndex || (SAMPLE_MARKETS.indexOf(market) + 1);
+    const marketIdBuf = Buffer.alloc(8);
+    marketIdBuf.writeBigUInt64LE(BigInt(marketIndex));
+
+    const [marketPda] = solanaWeb3.PublicKey.findProgramAddressSync(
+      [Buffer.from("market"), marketIdBuf],
+      new solanaWeb3.PublicKey(PROGRAM_ID)
+    );
+    const [vaultPda] = solanaWeb3.PublicKey.findProgramAddressSync(
+      [Buffer.from("vault"), marketIdBuf],
+      new solanaWeb3.PublicKey(PROGRAM_ID)
+    );
+    const [positionPda] = solanaWeb3.PublicKey.findProgramAddressSync(
+      [Buffer.from("position"), marketPda.toBuffer(), walletPubkey.toBuffer()],
+      new solanaWeb3.PublicKey(PROGRAM_ID)
+    );
+
+    // fetch the ATA address directly from chain instead of deriving it
+    const tokenAccounts = await conn.getTokenAccountsByOwner(walletPubkey, { mint: mintPubkey });
+    if (tokenAccounts.value.length === 0) {
+      toast("No token account found. Make sure you received test tokens.", "err");
+      return;
+    }
+    const userAta = tokenAccounts.value[0].pubkey;
+
+    // encode place_position instruction
+
+    // discriminator for place_position
+    const disc = new Uint8Array([218, 31, 90, 75, 101, 209, 5, 253]);
+    const data = new Uint8Array(8 + 8 + 1);
+    data.set(disc, 0);
+    const amountView = new DataView(data.buffer);
+    amountView.setBigUint64(8, BigInt(amountLamports), true);
+    data[16] = sideIsYes ? 1 : 0;
+
+    const ix = {
+      programId: new solanaWeb3.PublicKey(PROGRAM_ID),
+      keys: [
+        { pubkey: walletPubkey,  isSigner: true,  isWritable: true },
+        { pubkey: marketPda,     isSigner: false, isWritable: true },
+        { pubkey: vaultPda,      isSigner: false, isWritable: true },
+        { pubkey: userAta,       isSigner: false, isWritable: true },
+        { pubkey: positionPda,   isSigner: false, isWritable: true },
+        { pubkey: tokenProgram,  isSigner: false, isWritable: false },
+        { pubkey: systemProgram, isSigner: false, isWritable: false },
+      ],
+      data,
+    };
+
+    const { blockhash } = await conn.getLatestBlockhash();
+    const tx = new solanaWeb3.Transaction({ recentBlockhash: blockhash, feePayer: walletPubkey });
+    tx.add(ix);
+
+    const signed = await provider.signTransaction(tx);
+    const sig = await conn.sendRawTransaction(signed.serialize());
+    await conn.confirmTransaction(sig);
+
+    toast(`Bet placed! ${amount} USDC on ${sideIsYes ? "YES" : "NO"}`, "ok");
+    setTimeout(() => loadMarkets(), 2000);
+  } catch (e) {
+    console.error(e);
+    toast("Transaction failed: " + (e.message || "unknown error"), "err");
   }
-  // In the real build this calls the on-chain place_position instruction.
-  // For the demo we show a confirmation that the transaction would be sent.
-  toast(`Placing ${amount} USDC on ${sideIsYes ? "YES" : "NO"}... (demo mode)`, "ok");
 }
 
 // ─── render ───────────────────────────────────────────────────────────────────
@@ -657,11 +765,34 @@ function render() {
 
 // ─── init ─────────────────────────────────────────────────────────────────────
 
-window.addEventListener("DOMContentLoaded", () => {
+async function loadMarkets() {
+  try {
+    const conn = new solanaWeb3.Connection(RPC, "confirmed");
+    for (let i = 0; i < SAMPLE_MARKETS.length; i++) {
+      const info = await conn.getAccountInfo(new solanaWeb3.PublicKey(SAMPLE_MARKETS[i].address));
+      if (info) {
+        const d = info.data;
+        // skip 8 byte discriminator, 32 creator, 8 market_id, 8 fixture_id, 4+4 stat keys, 1+1 op+comparison, 4 threshold, 8 close_time
+        let offset = 8 + 32 + 8 + 8 + 4 + 4 + 1 + 1 + 4;
+        const closeTime = Number(d.readBigInt64LE(offset)); offset += 8;
+        SAMPLE_MARKETS[i].closeUnixTime = closeTime;
+        SAMPLE_MARKETS[i].status = d[offset]; offset += 1;
+        const yesPool = d.readBigUInt64LE(offset); offset += 8;
+        const noPool = d.readBigUInt64LE(offset); offset += 8;
+        SAMPLE_MARKETS[i].yesPool = Number(yesPool);
+        SAMPLE_MARKETS[i].noPool = Number(noPool);
+        SAMPLE_MARKETS[i].settledResult = d[offset];
+      }
+    }
+  } catch(e) {
+    console.error("Failed to load markets:", e);
+  }
   markets = SAMPLE_MARKETS;
   render();
+}
 
-  // Auto-reconnect if wallet was previously connected
+window.addEventListener("DOMContentLoaded", () => {
+  loadMarkets();
   const provider = window.solana || window.phantom?.solana;
   if (provider?.isConnected) connectWallet();
 });
