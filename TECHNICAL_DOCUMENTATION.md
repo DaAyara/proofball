@@ -57,11 +57,10 @@ Called by each winning position after settlement. Payout is proportional: `payou
 
 ## Live Markets on Devnet
 
-Three markets created with real TxLINE fixture IDs:
+Two markets created with real upcoming TxLINE fixture IDs:
 
 | Market | Fixture ID | Condition | PDA |
 |--------|-----------|-----------|-----|
-| Argentina vs Switzerland | 18222446 | Total corners > 9 | BpVuZMm3pz9pmbAcTWEzApiZdWgKQzXdpv7hkR1uqL6k |
 | France vs Spain | 18237038 | Total yellow cards > 4 | 6s1ufwxVcQ1dA3hP25uBZVbwHYbAnKMekgGR6vXFCUy5 |
 | England vs Argentina | 18241006 | Total goals > 2 | GjyVpoBamxXsimAo6v5dJg7QdBc5HxQaD6gu2JVKnLyL |
 
