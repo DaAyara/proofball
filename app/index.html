@@ -387,6 +387,7 @@ const PROGRAM_ID   = "7JNc8D9Pt87apERHFsXoTnibWEvxF9n5wCJJinJopaPv";
 const RPC          = "https://api.devnet.solana.com";
 const EXPLORER     = "https://explorer.solana.com";
 const MINT = "JsjcE84H8Mjgcgarwdz6c7gKCbEryngKmN6YM8BfBDn";
+const FAUCET_URL = "https://proofball-faucet.vercel.app/api/faucet";
 const TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
 const ASSOCIATED_TOKEN_PROGRAM = "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJe1bN8";
 
@@ -490,6 +491,28 @@ const SAMPLE_MARKETS = [
 ];
 
 // ─── wallet ───────────────────────────────────────────────────────────────────
+
+async function requestFaucet() {
+  const btn = document.querySelector('#faucetBanner button');
+  btn.textContent = 'Requesting...';
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${FAUCET_URL}?wallet=${wallet}`);
+    const data = await res.json();
+    if (data.success) {
+      toast('100 test tokens sent to your wallet!', 'ok');
+      document.getElementById('faucetBanner')?.remove();
+    } else {
+      toast('Faucet failed: ' + (data.error || 'unknown'), 'err');
+      btn.textContent = 'GET TEST TOKENS';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    toast('Faucet request failed', 'err');
+    btn.textContent = 'GET TEST TOKENS';
+    btn.disabled = false;
+  }
+}
 
 async function connectWallet() {
   const provider = getProvider();
