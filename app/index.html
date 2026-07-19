@@ -782,6 +782,15 @@ function render() {
 
   let html = "";
 
+  if (wallet) {
+    html += `
+      <div style="background:#1a1a0a;border:1px solid #E8C84A;padding:12px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:13px;">
+        <span style="color:#E8C84A">New here? Get free test tokens to place bets.</span>
+        <button onclick="requestFaucet()" style="background:#E8C84A;color:#000;border:none;padding:8px 16px;font-family:var(--mono);font-weight:700;font-size:12px;cursor:pointer;letter-spacing:1px;">GET TEST TOKENS</button>
+      </div>
+    `;
+  }
+
   if (open.length > 0) {
     html += `<div class="section-label">Open markets</div>`;
     html += open.map(renderCard).join("");
