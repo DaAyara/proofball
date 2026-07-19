@@ -493,9 +493,8 @@ const SAMPLE_MARKETS = [
 // ─── wallet ───────────────────────────────────────────────────────────────────
 
 async function requestFaucet() {
-  const btn = document.querySelector('#faucetBanner button');
-  btn.textContent = 'Requesting...';
-  btn.disabled = true;
+  const btn = document.getElementById('faucetBtn');
+  if (btn) { btn.textContent = 'Requesting...'; btn.disabled = true; }
   try {
     const res = await fetch(`${FAUCET_URL}?wallet=${wallet}`);
     const data = await res.json();
@@ -504,13 +503,11 @@ async function requestFaucet() {
       document.getElementById('faucetBanner')?.remove();
     } else {
       toast('Faucet failed: ' + (data.error || 'unknown'), 'err');
-      btn.textContent = 'GET TEST TOKENS';
-      btn.disabled = false;
+      if (btn) { btn.textContent = 'GET TEST TOKENS'; btn.disabled = false; }
     }
   } catch(e) {
     toast('Faucet request failed', 'err');
-    btn.textContent = 'GET TEST TOKENS';
-    btn.disabled = false;
+    if (btn) { btn.textContent = 'GET TEST TOKENS'; btn.disabled = false; }
   }
 }
 
