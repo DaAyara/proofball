@@ -529,6 +529,7 @@ async function connectWallet() {
     btn.classList.add("connected");
     btn.onclick = disconnectWallet;
     toast("Wallet connected", "ok");
+    render();
   } catch (e) {
     toast("Could not connect wallet", "err");
   }
@@ -553,6 +554,7 @@ function disconnectWallet() {
   btn.classList.remove("connected");
   btn.onclick = connectWallet;
   toast("Wallet disconnected", "");
+  render();
 }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
