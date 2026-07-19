@@ -638,8 +638,12 @@ async function placeBet(marketAddress, sideIsYes) {
       new solanaWeb3.PublicKey(PROGRAM_ID)
     );
 
-    // use the fixed ATA address for testing
-    const userAta = new solanaWeb3.PublicKey('7AXFNRVgGejSq4uMSed7fguzboCoVejmz7cTpfVo2643');
+    const tokenAccounts = await conn.getTokenAccountsByOwner(walletPubkey, { mint: mintPubkey });
+    if (tokenAccounts.value.length === 0) {
+      toast("No test tokens found. Click GET TEST TOKENS first.", "err");
+      return;
+    }
+    const userAta = tokenAccounts.value[0].pubkey;
 
     // encode place_position instruction
 
