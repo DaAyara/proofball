@@ -420,6 +420,40 @@ let markets = [];
 
 const SAMPLE_MARKETS = [
   {
+    address: "Boc3xuvzNCP8XuwAL3nrLU1YbfkP54zQWQVfSPBoLwbv",
+    fixtureId: "18257739",
+    matchName: "World Cup Final - Spain vs Argentina",
+    statKeyA: 1,
+    statKeyB: 2,
+    op: 0,
+    comparison: 0,
+    threshold: 2,
+    closeUnixTime: 1753052400 + 60 * 60 * 48,
+    status: 0,
+    yesPool: 0,
+    noPool: 0,
+    settledResult: 0,
+    isDemo: false,
+    marketIndex: 6,
+  },
+  {
+    address: "GEANj5otGxg3mohx8ketfrnHvZ6rVDcXAAfnwpSsEbbq",
+    fixtureId: "18257739",
+    matchName: "World Cup Final - Spain vs Argentina",
+    statKeyA: 3,
+    statKeyB: 4,
+    op: 0,
+    comparison: 0,
+    threshold: 9,
+    closeUnixTime: 1753052400 + 60 * 60 * 48,
+    status: 0,
+    yesPool: 0,
+    noPool: 0,
+    settledResult: 0,
+    isDemo: false,
+    marketIndex: 7,
+  },
+  {
     address: "6s1ufwxVcQ1dA3hP25uBZVbwHYbAnKMekgGR6vXFCUy5",
     fixtureId: "18237038",
     matchName: "France vs Spain",
@@ -517,7 +551,7 @@ function formatUsdc(micro) {
 
 function timeLeft(unixTime) {
   const diff = unixTime - Math.floor(Date.now() / 1000);
-  if (diff <= 0) return "Closed";
+  if (diff <= 0) return "Closed - Pending Settlement";
   const h = Math.floor(diff / 3600);
   const m = Math.floor((diff % 3600) / 60);
   if (h > 0) return `${h}h ${m}m remaining`;
@@ -630,8 +664,9 @@ function renderCard(m) {
   const condition = conditionText(m);
   const isOpen    = m.status === 0;
   const isYes     = m.settledResult === 1;
-  const badgeText = isOpen ? "OPEN" : (isYes ? "YES" : "NO");
-  const badgeClass = isOpen ? "open" : (isYes ? "yes" : "no");
+  const isPendingSettlement = m.status === 0 && Math.floor(Date.now() / 1000) > m.closeUnixTime;
+  const badgeText = isPendingSettlement ? "PENDING" : isOpen ? "OPEN" : (isYes ? "YES" : "NO");
+  const badgeClass = isPendingSettlement ? "open" : isOpen ? "open" : (isYes ? "yes" : "no");
 
   const totalPool = m.yesPool + m.noPool;
   const yesOdds = totalPool > 0 ? (totalPool / m.yesPool).toFixed(2) : "—";

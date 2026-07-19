@@ -43,34 +43,24 @@ function encodeCreateMarket(
 
 const MARKETS = [
   {
-    label:      "Total corners over 9 (Argentina vs Switzerland)",
-    fixtureId:  18222446n,
-    statKeyA:   3,
-    statKeyB:   4,
-    op:         0,
-    comparison: 0,
-    threshold:  9,
-    hoursOpen:  72,
-  },
-  {
-    label:      "Total yellow cards over 4 (France vs Spain)",
-    fixtureId:  18237038n,
-    statKeyA:   5,
-    statKeyB:   6,
-    op:         0,
-    comparison: 0,
-    threshold:  4,
-    hoursOpen:  120,
-  },
-  {
-    label:      "Total goals over 2 (England vs Argentina)",
-    fixtureId:  18241006n,
+    label:      "Total goals over 2 (World Cup Final - Spain vs Argentina)",
+    fixtureId:  18257739n,
     statKeyA:   1,
     statKeyB:   2,
     op:         0,
     comparison: 0,
     threshold:  2,
-    hoursOpen:  144,
+    hoursOpen:  48,
+  },
+  {
+    label:      "Total corners over 9 (World Cup Final - Spain vs Argentina)",
+    fixtureId:  18257739n,
+    statKeyA:   3,
+    statKeyB:   4,
+    op:         0,
+    comparison: 0,
+    threshold:  9,
+    hoursOpen:  48,
   },
 ];
 
@@ -96,7 +86,7 @@ async function main() {
 
   for (let i = 0; i < MARKETS.length; i++) {
     const m        = MARKETS[i];
-    const marketId = BigInt(i + 3);
+    const marketId = BigInt(i + 6);
     const marketIdBuf = Buffer.alloc(8);
     marketIdBuf.writeBigUInt64LE(marketId);
 
